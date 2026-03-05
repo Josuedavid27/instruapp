@@ -1,0 +1,109 @@
+import 'package:flutter/material.dart';
+import '../services/database_service.dart';
+
+class RegistroGrupoScreen extends StatefulWidget {
+  const RegistroGrupoScreen({super.key});
+
+  @override
+  State<RegistroGrupoScreen> createState() => _RegistroGrupoScreenState();
+}
+
+class _RegistroGrupoScreenState extends State<RegistroGrupoScreen> {
+
+  final TextEditingController instructorController = TextEditingController();
+  final TextEditingController jugadoresController = TextEditingController();
+  final TextEditingController recargasController = TextEditingController();
+  final TextEditingController bebidasController = TextEditingController();
+
+  final DatabaseService dbService = DatabaseService();
+
+  Future<void> guardarGrupo() async {
+
+    final grupo = {
+      'instructor': instructorController.text,
+      'jugadores': int.parse(jugadoresController.text),
+      'fecha': DateTime.now().toIso8601String(),
+      'recargas': int.parse(recargasController.text),
+      'bebidas': int.parse(bebidasController.text),
+    };
+
+    await dbService.insertarGrupo(grupo);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Grupo guardado correctamente"))
+    );
+
+    instructorController.clear();
+    jugadoresController.clear();
+    recargasController.clear();
+    bebidasController.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Registrar Grupo"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+
+            TextField(
+              controller: instructorController,
+              decoration: const InputDecoration(
+                labelText: "Instructor",
+                border: OutlineInputBorder(),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextField(
+              controller: jugadoresController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: "Cantidad de jugadores",
+                border: OutlineInputBorder(),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextField(
+              controller: recargasController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: "Recargas",
+                border: OutlineInputBorder(),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextField(
+              controller: bebidasController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: "Bebidas",
+                border: OutlineInputBorder(),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: guardarGrupo,
+                child: const Text("Guardar Grupo"),
+              ),
+            )
+
+          ],
+        ),
+      ),
+    );
+  }
+}
