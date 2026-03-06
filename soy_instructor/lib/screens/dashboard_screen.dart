@@ -15,6 +15,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int gruposHoy = 0;
   int jugadoresHoy = 0;
   int ventasHoy = 0;
+  String topInstructorGrupos = "N/A";
+  int totalGruposInstructor = 0;
+  String topInstructorVentas = "N/A";
+  int totalVentasInstructor = 0;
 
   @override
   void initState() {
@@ -25,11 +29,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> cargarEstadisticas() async {
 
     final stats = await dbService.obtenerEstadisticasHoy();
+    final topGrupos = await dbService.obtenerTopInstructorGrupos();
+    final topVentas = await dbService.obtenerTopInstructorVentas();
 
     setState(() {
       gruposHoy = stats["grupos"] ?? 0;
       jugadoresHoy = stats["jugadores"] ?? 0;
       ventasHoy = stats["ventas"] ?? 0;
+
+       if (topGrupos != null) {
+    topInstructorGrupos = topGrupos["instructor"];
+    totalGruposInstructor = topGrupos["total"];
+  }
+
+  if (topVentas != null) {
+    topInstructorVentas = topVentas["instructor"];
+    totalVentasInstructor = topVentas["total"];
+  }
     });
   }
 
@@ -73,10 +89,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 15),
 
             tarjeta("Ventas hoy", "\$ $ventasHoy", Icons.attach_money),
-
+            tarjeta("Instructor con más grupos","$topInstructorGrupos ($totalGruposInstructor)",
+              Icons.emoji_events
+            ),
+            tarjeta(
+            "Instructor que más vendió",
+            "$topInstructorVentas (\$ $totalVentasInstructor)",
+            Icons.monetization_on
+            ),
           ],
         ),
       ),
     );
   }
+  
 }

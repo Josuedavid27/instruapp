@@ -46,6 +46,45 @@ class DatabaseService {
     final db = await database;
     return await db.query('grupos');
   }
+  //obtener instructor con más ventas
+  Future<Map<String, dynamic>?> obtenerTopInstructorVentas() async {
+
+  final db = await database;  
+
+  final resultado = await db.rawQuery('''
+  SELECT instructor, SUM(total) as total
+  FROM grupos
+  GROUP BY instructor
+  ORDER BY total DESC
+  LIMIT 1
+  ''');
+
+  if (resultado.isNotEmpty) {
+    return resultado.first;
+  }
+
+  return null;
+}
+  // Obtener instructor con más grupos
+  Future<Map<String, dynamic>?> obtenerTopInstructorGrupos() async {
+
+  final db = await database;
+
+  final resultado = await db.rawQuery('''
+  SELECT instructor, COUNT(*) as total
+  FROM grupos
+  GROUP BY instructor
+  ORDER BY total DESC
+  LIMIT 1
+  ''');
+
+  if (resultado.isNotEmpty) {
+    return resultado.first;
+  }
+
+  return null;
+}
+// Obtener estadísticas del día
   Future<Map<String, dynamic>> obtenerEstadisticasHoy() async {
 
   final db = await database;
@@ -73,5 +112,7 @@ class DatabaseService {
     "jugadores": jugadoresHoy.first["total"] ?? 0,
     "ventas": ventasHoy.first["total"] ?? 0,
   };
+
+  
 }
 }
