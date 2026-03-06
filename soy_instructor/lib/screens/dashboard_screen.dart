@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/database_service.dart';
+import '../services/reporte_service.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -48,6 +50,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
     });
   }
+  // cerrar día y generar reporte
+  Future<void> cerrarDia() async {
+
+  final db = DatabaseService();
+  final reporte = ReporteService();
+
+  final gruposHoy = await db.obtenerGruposHoy();
+
+  if (gruposHoy.isEmpty) {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("No hay datos para hoy"))
+    );
+
+    return;
+  }
+
+  final path = await reporte.generarExcel(gruposHoy);
+
+  await Share.shareXFiles(
+    [XFile(path)],
+    text: "Reporte del día Paintball"
+  );
+  }
 
   Widget tarjeta(String titulo, String valor, IconData icono) {
     return Card(
@@ -93,11 +119,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Icons.emoji_events
             ),
             tarjeta(
-            "Instructor que más vendió",
-            "$topInstructorVentas (\$ $totalVentasInstructor)",
-            Icons.monetization_on
+              "Instructor que más vendió",
+              "$topInstructorVentas (\$ $totalVentasInstructor)",
+              Icons.monetization_on
+            ),
+            ElevatedButton.icon(
+              icon: Icon(Icons.file_download),
+              label: Text("Cerrar día y generar reporte"),
+              onPressed: cerrarDia,
             ),
           ],
+          
         ),
       ),
     );

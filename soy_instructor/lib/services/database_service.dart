@@ -46,44 +46,59 @@ class DatabaseService {
     final db = await database;
     return await db.query('grupos');
   }
+  // Obtener grupos del día
+  Future<List<Map<String, dynamic>>> obtenerGruposHoy() async {
+
+    final db = await database;
+
+    final hoy = DateTime.now();
+    final inicioDia = DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
+
+    final resultado = await db.rawQuery(
+      "SELECT * FROM grupos WHERE fecha >= ?",
+      [inicioDia]
+    );
+
+    return resultado;
+  }
   //obtener instructor con más ventas
   Future<Map<String, dynamic>?> obtenerTopInstructorVentas() async {
 
-  final db = await database;  
+    final db = await database;  
 
-  final resultado = await db.rawQuery('''
-  SELECT instructor, SUM(total) as total
-  FROM grupos
-  GROUP BY instructor
-  ORDER BY total DESC
-  LIMIT 1
-  ''');
+    final resultado = await db.rawQuery('''
+    SELECT instructor, SUM(total) as total
+    FROM grupos
+    GROUP BY instructor
+    ORDER BY total DESC
+    LIMIT 1
+    ''');
 
-  if (resultado.isNotEmpty) {
-    return resultado.first;
+    if (resultado.isNotEmpty) {
+      return resultado.first;
+    }
+
+    return null;
   }
-
-  return null;
-}
   // Obtener instructor con más grupos
   Future<Map<String, dynamic>?> obtenerTopInstructorGrupos() async {
 
-  final db = await database;
+    final db = await database;
 
-  final resultado = await db.rawQuery('''
-  SELECT instructor, COUNT(*) as total
-  FROM grupos
-  GROUP BY instructor
-  ORDER BY total DESC
-  LIMIT 1
-  ''');
+    final resultado = await db.rawQuery('''
+    SELECT instructor, COUNT(*) as total
+    FROM grupos
+    GROUP BY instructor
+    ORDER BY total DESC
+    LIMIT 1
+    ''');
 
-  if (resultado.isNotEmpty) {
-    return resultado.first;
+    if (resultado.isNotEmpty) {
+      return resultado.first;
+    }
+
+    return null;
   }
-
-  return null;
-}
 // Obtener estadísticas del día
   Future<Map<String, dynamic>> obtenerEstadisticasHoy() async {
 
@@ -112,7 +127,5 @@ class DatabaseService {
     "jugadores": jugadoresHoy.first["total"] ?? 0,
     "ventas": ventasHoy.first["total"] ?? 0,
   };
-
-  
 }
 }
