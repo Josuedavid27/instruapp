@@ -27,7 +27,8 @@ class DatabaseService {
           jugadores INTEGER,
           fecha TEXT,
           recargas INTEGER,
-          bebidas INTEGER
+          bebidas INTEGER,
+          total INTEGER
         )
         ''');
       },
@@ -45,4 +46,32 @@ class DatabaseService {
     final db = await database;
     return await db.query('grupos');
   }
+  Future<Map<String, dynamic>> obtenerEstadisticasHoy() async {
+
+  final db = await database;
+
+  final hoy = DateTime.now();
+  final inicioDia = DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
+
+  final gruposHoy = await db.rawQuery(
+    "SELECT COUNT(*) as total FROM grupos WHERE fecha >= ?",
+    [inicioDia]
+  );
+
+  final jugadoresHoy = await db.rawQuery(
+    "SELECT SUM(jugadores) as total FROM grupos WHERE fecha >= ?",
+    [inicioDia]
+  );
+
+  final ventasHoy = await db.rawQuery(
+    "SELECT SUM(total) as total FROM grupos WHERE fecha >= ?",
+    [inicioDia]
+  );
+
+  return {
+    "grupos": gruposHoy.first["total"] ?? 0,
+    "jugadores": jugadoresHoy.first["total"] ?? 0,
+    "ventas": ventasHoy.first["total"] ?? 0,
+  };
+}
 }

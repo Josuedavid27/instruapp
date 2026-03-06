@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/database_service.dart';
+import 'historial_grupos_screen.dart';
 
 class RegistroGrupoScreen extends StatefulWidget {
   const RegistroGrupoScreen({super.key});
@@ -17,33 +18,55 @@ class _RegistroGrupoScreenState extends State<RegistroGrupoScreen> {
 
   final DatabaseService dbService = DatabaseService();
 
-  Future<void> guardarGrupo() async {
+ Future<void> guardarGrupo() async {
 
-    final grupo = {
-      'instructor': instructorController.text,
-      'jugadores': int.parse(jugadoresController.text),
-      'fecha': DateTime.now().toIso8601String(),
-      'recargas': int.parse(recargasController.text),
-      'bebidas': int.parse(bebidasController.text),
-    };
+  int recargas = int.parse(recargasController.text);
+  int bebidas = int.parse(bebidasController.text);
 
-    await dbService.insertarGrupo(grupo);
+  int precioRecarga = 10000;
+  int precioBebida = 3000;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Grupo guardado correctamente"))
-    );
+  int total = (recargas * precioRecarga) + (bebidas * precioBebida);
 
-    instructorController.clear();
-    jugadoresController.clear();
-    recargasController.clear();
-    bebidasController.clear();
-  }
+  final grupo = {
+    'instructor': instructorController.text,
+    'jugadores': int.parse(jugadoresController.text),
+    'fecha': DateTime.now().toIso8601String(),
+    'recargas': recargas,
+    'bebidas': bebidas,
+    'total': total
+  };
+
+  await dbService.insertarGrupo(grupo);
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Grupo guardado - Total: \$ $total"))
+  );
+
+  instructorController.clear();
+  jugadoresController.clear();
+  recargasController.clear();
+  bebidasController.clear();
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Registrar Grupo"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HistorialGruposScreen(),
+                ),
+              );
+            },
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -100,7 +123,8 @@ class _RegistroGrupoScreenState extends State<RegistroGrupoScreen> {
                 child: const Text("Guardar Grupo"),
               ),
             )
-
+            
+            
           ],
         ),
       ),
