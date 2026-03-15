@@ -61,6 +61,18 @@ class DatabaseService {
 
     return resultado;
   }
+  // Actualizar grupo o editar grupo
+    Future<int> actualizarGrupo(Map<String, dynamic> grupo) async {
+
+    final db = await database;
+
+    return await db.update(
+      'grupos',
+      grupo,
+      where: 'id = ?',
+      whereArgs: [grupo['id']],
+    );
+  }
   //obtener instructor con más ventas
   Future<Map<String, dynamic>?> obtenerTopInstructorVentas() async {
 
@@ -103,7 +115,6 @@ class DatabaseService {
   Future<Map<String, dynamic>> obtenerEstadisticasHoy() async {
 
   final db = await database;
-
   final hoy = DateTime.now();
   final inicioDia = DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
 
